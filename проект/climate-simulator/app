@@ -1,0 +1,41 @@
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import * as d3 from 'd3';
+import L from 'leaflet';
+import { Slider } from './Slider';
+
+const App = () => {
+  const [year, setYear] = useState(2000);
+  const [temperatureData, setTemperatureData] = useState([]);
+  const [co2Data, setCo2Data] = useState([]);
+
+  useEffect(() => {
+    fetch(`/data/temperature_${year}.json`)
+      .then(res => res.json())
+      .then(data => setTemperatureData(data));
+
+    fetch(`/data/co2_${year}.json`)
+      .then(res => res.json())
+      .then(data => setCo2Data(data));
+
+    const map = L.map('map').setView([41.2044, 74.7661], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  }, [year]);
+
+  return (
+    <div className="App">
+      <div className="map-container">
+        <div id="map" style={{ height: '600px' }}></div>
+      </div>
+      <div className="chart-container">
+        <h2>Температура в {year} году</h2>
+        <div id="temperature-chart"></div>
+        <h2>CO₂ в {year} году</h2>
+        <div id="co2-chart"></div>
+      </div>
+      <Slider year={year} setYear={setYear} />
+    </div>
+  );
+};
+
+export default App;
